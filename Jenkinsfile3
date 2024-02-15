@@ -1,0 +1,35 @@
+//this will grab user - who is running the job
+def user
+node {
+  wrap([$class: 'BuildUser']) {
+    user = env.BUILD_USER_ID
+  }
+  
+  emailext mimeType: 'text/html',
+                 subject: "[Jenkins]${currentBuild.fullDisplayName}",
+                 to: "ali38.karaca@gmail.com",
+                 body: '''<a href="${BUILD_URL}input">click to approve</a>'''
+}
+pipeline {
+    agent any
+    stages {
+        stage('Build Application') {
+             steps{
+                build job: 'build-web-application'
+            }
+        }
+        stage('Deploy to Staging Environment'){
+            steps{
+                build job: 'Deploy-Application-Staging-Environment'
+            }            
+        }
+        stage('Deploy to Production Environment'){
+            steps{
+                timeout(time:5, unit:'DAYS'){
+                    input message:'Approve PRODUCTION Deployment?'
+                }
+                build job: 'Deploy-Application-Production-Environment'
+            }
+        }
+    }
+}
