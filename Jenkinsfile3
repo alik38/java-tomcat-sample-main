@@ -1,15 +1,8 @@
-//this will grab user - who is running the job
-def user
-node {
-  wrap([$class: 'BuildUser']) {
-    user = env.BUILD_USER_ID
-  }
-  
-  emailext mimeType: 'text/html',
-                 subject: "[Jenkins]${currentBuild.fullDisplayName}",
-                 to: "ali38.karaca@gmail.com",
-                 body: '''<a href="${BUILD_URL}input">click to approve</a>'''
-}
+def tok = UUID.randomUUID().toString()
+mail to: 'ali38.karaca@gmail.com', subject: 'Ready to roll?', mimeType: 'text/html',
+body: """Please <a href="${env.http://54.224.105.35:8080/}pipeline-inputs/${tok}/proceed">approve me</a>!"""
+input message: 'Ready?', token: tok
+
 pipeline {
     agent any
     stages {
